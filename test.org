@@ -1,0 +1,35 @@
+* org-mode structure
+  Text in org-mode is structured by headings, denoted by lines starting with
+  one or more *
+
+** A subheading
+   Starts with an extra * and so on
+
+** navigation
+   Headings can be expanded or collapsed by moving to the subheading and pressing TAB. S-TAB cycles
+   all headings. You can jump to next and previous headings with C-c C-n and C-c C-p respectively.
+
+   You can move headings up and down to reorder them with arrow keys, using M-up and M-down.
+   You can change the level of headings with M-left and M-right (and use M-S-Left and M-S-right to
+   also change the levels of subheadings.)
+
+** lists
+*** bullet lists
+ - bullet lists can be created like this (start a line with one or more space and a -)
+ - pressing M-RET gives you a new bullet
+ - we might also like nested bullets
+   - like this one (I pressed M-RET TAB to indent it)
+   - and another (M-RET now indents it to the new level)
+ - the nice thing is that for long lines of text emacs wraps them 
+   so that they line up with the bullet
+ - you can also reorder list items and change indentation using 
+   M-up or M-down just like with section headings
+ - you can change bullet style using S-left and S-right
+
+*** numbered lists
+ 1) numbered lists are also possible
+ 2) M-RET gives a new number
+
+*** checklists [/]
+ - [ ] we can even have checklists
+ - M-S
