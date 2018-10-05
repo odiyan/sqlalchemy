@@ -1,5 +1,4 @@
-from sqlalchemy import engine, MetaData, select, Table, create_engine
-from sqlalchemy.sql import text
+from sqlalchemy import MetaData, create_engine
 import os
 import csv
 import glob
@@ -21,10 +20,15 @@ tablemeta = MetaData(bind=engine, reflect=True)
 
 csv_dict = {}
 table_dict = {}
+table_dict_lower = {}
+csv_dict_lower = {}
+
 for csvfile in glob.glob(os.path.join('../database/mtm-data', '*.csv')):
-    with open(csvfile) as f:
+    with open(csvfile, encoding="latin-1") as f:
         csv_data = csv.reader(f, delimiter=',')
-        row1 = next(csv_data)
+        regx_pat = '\s'
+        row1_with_space = next(csv_data)
+        row1 = [re.sub(regx_pat, '_', row) for row in row1_with_space]
         # print('\n', csvfile)
         # print(row1)
         
@@ -34,7 +38,9 @@ for csvfile in glob.glob(os.path.join('../database/mtm-data', '*.csv')):
         stripped_first = re.sub(pattern1, '', csvfile)
         stripped_file_name = re.sub(pattern2, '', stripped_first)
         # pattern.match(csvfile).group()
-        csv_dict[stripped_file_name.lower()] = [row.lower() for row in row1]
+        csv_dict[stripped_file_name] = [row.lower() for row in row1]
+        csv_dict_lower[stripped_file_name.lower()] = [row.lower() for
+                                                      row in row1]
 
 # print(csv_dict)
 
@@ -43,19 +49,41 @@ for csvfile in glob.glob(os.path.join('../database/mtm-data', '*.csv')):
     # for c in t.c:
     #     print('\n', c)
 
-
 for t in tablemeta.sorted_tables:
     # print(t, type(t))
     col_names = [str(col).lower() for col in t.c.keys()]
     # print(str(t.name), col_names)
-    table_name = str(t.name).lower()
+    table_name = str(t.name)
+    table_name_lower = table_name.lower()
     table_dict[table_name] = col_names
+    table_dict_lower[table_name_lower] = col_names
+
     # print(t.select(), '***', type(t.select()))
     # table_dict[t.name] = [dict(row) for row in engine.execute(t.select())]
 #    statement = text("describe ")
 #    conn.execute(statement)
 # print(table_dict)
 
-for file_name in csv_dict.keys():
-    if not file_name in table_dict.keys():
+# for file_name in csv_dict_lower.keys():
+#    if file_name not in table_dict_lower.keys():
+#        print(file_name)
+#    else:
+#        extra_columns_in_csv = set(csv_dict_lower[file_name]).difference(
+#            table_dict_lower[file_name])
+#        print(file_name, extra_columns_in_csv)
+
+for file_name in csv_dict.keys():  # map(lambda x: x.lower(), csv_dict.keys()):
+    if file_name.lower() not in map(lambda x: x.lower(), table_dict.keys()):
         print(file_name)
+    else:
+        extra_columns_in_csv = set(csv_col.lower() for csv_col in
+                                   csv_dict[file_name]).difference(
+            tab_col_name.lower() for tab_col_name in
+                                       table_dict_lower[file_name.lower()])
+        print(file_name, extra_columns_in_csv)
+
+# import sys, os
+# sys.path.append(os.path.join(os.path.dirname(__file__), '.., alembic, versions'))
+# from test import col_dict
+# 
+# print('*'*8, set(col_dict.keys()).difference(csv_dict_lower['vesseldetail']))
